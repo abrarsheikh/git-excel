@@ -7,9 +7,54 @@ var express = require("express");
 var compress = require("compression");
 var exphbs = require("express-handlebars");
 var bodyParser = require("body-parser");
+var Duplex = require('stream').Duplex;
+var browserChannel = require('browserchannel').server;
+var livedb = require('livedb');
+var sharejs = require('share');
+var shareCodeMirror = require('share-codemirror');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
+
+
+// ----------------------------------------------------------------------------
+// Setup, sharejs
+// ----------------------------------------------------------------------------
+var backend = livedb.client(livedb.memory());
+var share = sharejs.server.createClient({backend: backend});
+
+app.use(express.static(__dirname));
+app.use(express.static(__dirname + '/../js'));
+app.use(express.static(shareCodeMirror.scriptsDir));
+app.use(express.static(__dirname + '/../node_modules/codemirror/lib'));
+app.use(express.static(__dirname + '/../node_modules/codemirror/addon'));
+app.use('/mode', express.static(__dirname + '/../node_modules/codemirror/mode'));
+app.use(express.static(sharejs.scriptsDir));
+app.use(browserChannel(function (client) {
+  var stream = new Duplex({objectMode: true});
+  stream._write = function (chunk, encoding, callback) {
+    if (client.state !== 'closed') {
+      client.send(chunk);
+    }
+    callback();
+  };
+  stream._read = function () {
+  };
+  stream.headers = client.headers;
+  stream.remoteAddress = stream.address;
+  client.on('message', function (data) {
+    stream.push(data);
+  });
+  stream.on('error', function (msg) {
+    client.stop();
+  });
+  client.on('close', function (reason) {
+    stream.emit('close');
+    stream.emit('end');
+    stream.end();
+  });
+  return share.listen(stream);
+}));
 
 // ----------------------------------------------------------------------------
 // Setup, Static Routes

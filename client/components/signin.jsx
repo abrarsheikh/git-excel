@@ -7,17 +7,19 @@ var UserStore = require("../stores/user-store");
 var Router = require("react-router");
 var RouteHandler = Router.RouteHandler;
 
+// constants
+var Constants = require('../constants');
+
+require('../hello_init')
+
 // Component
 var SignIn = React.createClass({
   displayName: "Sign In",
   propTypes: {},
-  mixins: [],
+  mixins: [UserStore.mixin, Router.Navigation],
 
   getInitialState: function () { 
-    return {
-      token: "7f3529f067191a4894b736b91cc10ef1c01ee352",
-      repo: "https://github.com/abrarsheikh/IntegerCompression.git"
-    }; 
+    return UserStore.getSignInAttr(); 
   },
 
   componentWillMount: function () {},
@@ -25,7 +27,16 @@ var SignIn = React.createClass({
   componentWillUnmount: function () {},
 
   storeDidChange: function () {
-
+    var nextPath = this.context.router.getCurrentQuery().nextPath;
+    if (UserStore.isUserLoggedIn()) {
+      if (nextPath) {
+        this.transitionTo(nextPath);
+      } 
+      else {
+        this.transitionTo('/home', {}, {path: '', type: Constants.CONTENT_TYPE_DIR});
+      }
+    }
+    this.setState(UserStore.getSignInAttr());
   },
 
   login: function (e) {
@@ -47,17 +58,34 @@ var SignIn = React.createClass({
     });
   },
 
+  login2: function (network){
+    debugger;
+    var github = hello('github');
+
+    github.login( function(){
+    });
+  },
+
+  handleTokenChange: function (e) {
+    LoginActions.loginTokenChanged(this.refs.inputToken.getDOMNode().value);
+  },
+
+  handleRepoChange: function (e) {
+    LoginActions.loginRepoChanged(this.refs.inputRepo.getDOMNode().value);
+  },
+
   render: function () {
     return (
       <div className="container">
 
         <form className="form-signin">
           <h2 className="form-signin-heading">Please signin to GIT</h2>
-          <label for="inputToken" className="sr-only">Token</label>
-          <input type="text" value={this.state.token} id="inputToken" ref="inputToken" className="form-control" placeholder="Token" />
-          <label for="inputRepo" className="sr-only">Repo</label>
-          <input type="text" value={this.state.repo} id="inputRepo" ref="inputRepo" className="form-control" placeholder="Repo" />
-          <button className="btn btn-lg btn-primary btn-block" onClick={this.login.bind(this)} type="submit">Sign in</button>
+          <label htmlFor="inputToken" className="sr-only">Token</label>
+          <input type="text" onChange={this.handleTokenChange} value={this.state.token} id="inputToken" ref="inputToken" className="form-control" placeholder="Token" />
+          <label htmlFor="inputRepo" className="sr-only">Repo</label>
+          <input type="text" onChange={this.handleRepoChange} value={this.state.repo} id="inputRepo" ref="inputRepo" className="form-control" placeholder="Repo" />
+          <button className="btn btn-lg btn-primary btn-block" onClick={this.login} type="submit">Sign in</button>
+          <button onClick={this.login2}>github</button>
         </form>
 
         <RouteHandler />

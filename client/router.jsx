@@ -17,7 +17,8 @@ var NotFoundRoute = Router.NotFoundRoute;
 // Declare routes
 var routes = (
   <Route handler={App} path="/">
-    <DefaultRoute name="app" handler={SignIn} />
+    <Route path="signin" handler={SignIn} />
+    <Route name="home" path="home" handler={Home} />
     <NotFoundRoute handler={NotFound} />
   </Route>
 );

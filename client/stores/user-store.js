@@ -4,81 +4,38 @@ var _ = require("lodash");
 // Creates a DataStore
 var UserStore = Biff.createStore({
   // Initial setup
-  token: null,
-  github: null,
-  tokenValid: false,
+  token: "0ef8608da2e830191e2d15753d46020e9068cea0",
+  loggedIn: false,
+  repo: "https://github.com/abrarsheikh/IntegerCompression.git",
+  repoObject: null,
 
-  updateRecipeIngredientList: function (_id, index) {
-    var recipe = this.getRecipe(_id);
-    if (index || index === 0) {
-      // Delete operation
-      recipe.ingredients.splice(index, 1);
-    } else {
-      // Create operation
-      recipe.ingredients.push(
-        {
-          ingredient: "",
-          quantity: "",
-          measurement: "",
-          modifier: ""
-        }
-      );
+  getSignInAttr: function () {
+    return {
+      token: this.token,
+      repo: this.repo
     }
   },
-
-  updateRecipe: function (data) {
-    var recipe = this.getRecipe(data._id);
-    if (data.index || data.index === 0) {
-      recipe.ingredients[data.index][data.accessor] = data.value;
-    } else {
-      recipe[data.accessor] = data.value;
-    }
-  },
-
-  updatePortions: function (data) {
-    // TODO: validate data
-    var recipe = this.getRecipe(data._id);
-
-    if (recipe.portions !== data.portions) {
-      var multiplier = data.portions / recipe.portions;
-      recipe.ingredients.map(function (ing) {
-        ing.quantity = ing.quantity * multiplier;
-      });
-
-      recipe.portions = data.portions;
-    }
-  },
-
-  loadRecipes: function (recipes) {
-    this._recipes = recipes;
-  },
-
-  createRecipe: function (recipe) {
-    this._recipes.push(recipe);
-  },
-
-  createIngredient: function () {},
-
-  deleteRecipe: function (_id) {
-    _.remove(this._recipes, { _id: _id });
-  },
-
-  getRecipe: function (_id) {
-    return _.find(this._recipes, { _id: _id });
-  },
-
-  getRecipes: function () {
-    return this._recipes;
+  isUserLoggedIn: function () {
+    return this.loggedIn;
   }
 }, function (payload) {
   if (payload.actionType === "SIGNIN_FAILED") {
-    this.tokenValid = false;
+    this.loggedIn = false;
     this.emitChange();
   }
   if (payload.actionType === "SIGNIN_SUCCESS") {
-    this.tokenValid = true;
+    this.loggedIn = true;
     this.token = payload.token;
-    this.github = payload.github;
+    this.repoObject = payload.repoObject;
+    this.repoInfo = payload.payload;
+    this.repoBranches = payload.repoBranches;
+    this.emitChange();
+  }
+  if (payload.actionType === "LOGIN_INPUT_CHANGED") {
+    if (payload.type === "token") 
+      this.token = payload.data;
+    if (payload.type === "repo")
+      this.repo = payload.data;
     this.emitChange();
   }
 });

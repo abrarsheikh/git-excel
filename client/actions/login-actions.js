@@ -11,7 +11,7 @@ var LoginActions = Biff.createActions({
       gitPatterns = null,
       gitPatternsIndex,
       parsedUserAndRepo,
-      repo,
+      repoObject,
       username,
       reponame;
 
@@ -40,19 +40,38 @@ var LoginActions = Biff.createActions({
       }
     }
 
-    repo = github.getRepo(username, reponame);
+    repoObject = github.getRepo(username, reponame);
 
-    repo.show(function(err, repo) {
+    repoObject.show(function(err, repo) {
+      var repoInfo = repo;
       if (err) {
         self.dispatch({
           actionType: "SIGNIN_FAILED",
         });
         return;
       }
-      self.dispatch({
-        actionType: "SIGNIN_SUCCESS",
-        repo: repo
+      repoObject.listBranches(function(err, branches) {
+        self.dispatch({
+          actionType: "SIGNIN_SUCCESS",
+          repoObject: repoObject,
+          repoInfo: repoInfo,
+          repoBranches: branches
+        });
       });
+    });
+  },
+  loginTokenChanged: function (data) {
+    this.dispatch({
+      actionType: "LOGIN_INPUT_CHANGED",
+      type: "token",
+      data: data
+    });
+  },
+  loginRepoChanged: function (data) {
+    this.dispatch({
+      actionType: "LOGIN_INPUT_CHANGED",
+      type: "repo",
+      data: data
     });
   }
 });

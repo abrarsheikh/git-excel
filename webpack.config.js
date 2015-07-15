@@ -12,12 +12,16 @@ module.exports = {
   },
   module: {
     loaders: [
-      { test: /\.jsx$/, loader: "jsx-loader" }
+      { test: /\.jsx$/, loader: "jsx-loader" },
+      { test: /\.json$/, loader: "json-loader" }
     ]
   },
   resolve: {
     extensions: ["", ".js", ".jsx"]
   },
+  node: {
+  fs: "empty"
+},
   plugins: [
     // Optimize
     new webpack.optimize.DedupePlugin(),
