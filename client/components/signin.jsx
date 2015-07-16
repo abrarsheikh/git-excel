@@ -10,8 +10,6 @@ var RouteHandler = Router.RouteHandler;
 // constants
 var Constants = require('../constants');
 
-require('../hello_init')
-
 // Component
 var SignIn = React.createClass({
   displayName: "Sign In",
@@ -62,7 +60,8 @@ var SignIn = React.createClass({
     debugger;
     var github = hello('github');
 
-    github.login( function(){
+    github.login( function(session){
+      console.log(session);
     });
   },
 
@@ -77,7 +76,6 @@ var SignIn = React.createClass({
   render: function () {
     return (
       <div className="container">
-
         <form className="form-signin">
           <h2 className="form-signin-heading">Please signin to GIT</h2>
           <label htmlFor="inputToken" className="sr-only">Token</label>
@@ -85,7 +83,7 @@ var SignIn = React.createClass({
           <label htmlFor="inputRepo" className="sr-only">Repo</label>
           <input type="text" onChange={this.handleRepoChange} value={this.state.repo} id="inputRepo" ref="inputRepo" className="form-control" placeholder="Repo" />
           <button className="btn btn-lg btn-primary btn-block" onClick={this.login} type="submit">Sign in</button>
-          <button onClick={this.login2}>github</button>
+          <a href="/logout">Logout</a>
         </form>
 
         <RouteHandler />

@@ -27,9 +27,9 @@ var Home = React.createClass({
   mixins: [RepoStore.mixin],
   statics: {
     willTransitionTo: function (transition, params, query) {
-      if (!UserStore.isUserLoggedIn()) {
-        transition.redirect('/signin', params, query);
-      }
+      // if (!UserStore.isUserLoggedIn()) {
+      //   transition.redirect('/signin', params, query);
+      // }
     },
     willTransitionFrom: function (transition, component) {
     }
