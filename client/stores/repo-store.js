@@ -14,6 +14,8 @@ var RepoStore = Biff.createStore({
   currPath: '',
   currContents: [],
   currType: constants.CONTENT_TYPE_DIR,
+  currRepo: '',
+  loading: true,
 
   getRObject: function () {
     return this.rObject;
@@ -31,21 +33,29 @@ var RepoStore = Biff.createStore({
     return this.currContents;
   }
 }, function (payload) {
-  if (payload.actionType === "SIGNIN_SUCCESS") {
+  if (payload.actionType === "INIT_SUCCESS") {
     this.rObject = payload.repoObject;
     this.info = payload.repoInfo;
     this.branches = payload.repoBranches;
+    this.currRepo = payload.repo;
+    this.currPath = payload.path;
+    this.currType = payload.type;
+
+    this.loading = false;
+    this.emitChange();
   }
   if (payload.actionType === "REPO_OPEN_DIR") {
     this.currContents = payload.currContents;
     this.currPath = payload.currPath;
     this.currType = constants.CONTENT_TYPE_DIR;
+    this.loading = false;
     this.emitChange();
   }
   if (payload.actionType === "REPO_OPEN_FILE") {
     this.currContents = payload.currContents;
     this.currPath = payload.currPath;
     this.currType = constants.CONTENT_TYPE_FILE;
+    this.loading = false;
     this.emitChange();
   }
   if (payload.actionType === "REPO_FILE_UPDATED") {

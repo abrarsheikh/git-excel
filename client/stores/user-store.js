@@ -1,19 +1,16 @@
 var Biff = require("../biff");
 var _ = require("lodash");
-var cookie = require('react-cookie')
-debugger;
+var cookie = require('react-cookie');
 
 // Creates a DataStore
 var UserStore = Biff.createStore({
   // Initial setup
-  token: cookie.load('github_token'),
   loggedIn: false,
   repo: "https://github.com/abrarsheikh/IntegerCompression.git",
   repoObject: null,
 
   getSignInAttr: function () {
     return {
-      token: this.token,
       repo: this.repo
     }
   },

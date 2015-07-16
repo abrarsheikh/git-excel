@@ -30,6 +30,7 @@ var Home = React.createClass({
       // if (!UserStore.isUserLoggedIn()) {
       //   transition.redirect('/signin', params, query);
       // }
+      return true;
     },
     willTransitionFrom: function (transition, component) {
     }
@@ -41,25 +42,34 @@ var Home = React.createClass({
       contentType: Constants.CONTENT_TYPE_DIR,
       contents: [],
       path: null,
-      currBranchIndex: RepoStore.currBranchIndex
+      currBranchIndex: RepoStore.currBranchIndex,
+      repo: RepoStore.currRepo,
+      loading: RepoStore.loading
     };
   },
 
-  componentWillMount: function () {},
+  componentWillMount: function () {
+    RepoActions.init(this.props.query.repo, this.props.query.path, this.props.query.type);
+  },
 
   componentWillUnmount: function () {},
 
   componentDidMount: function () {
-    this.repoLoadAction(this.props.query.path, this.props.query.type);
+      // this.repoLoadAction(this.props.query.path, this.props.query.type);
   },
 
   storeDidChange: function () { 
+    if (this.state.loading != RepoStore.loading) {
+      this.repoLoadAction(this.props.query.path, this.props.query.type);
+    }
     this.setState({
       contents: RepoStore.getCurrContents(),
       path: RepoStore.getCurrPath(),
       contentType: RepoStore.currType,
+      repo: RepoStore.currRepo,
       repoInfo: RepoStore.info,
       currBranchIndex: RepoStore.currBranchIndex,
+      loading: RepoStore.loading
     });
   },
 
@@ -70,15 +80,16 @@ var Home = React.createClass({
   },
 
   shouldComponentUpdate: function () {
-    if (this.state.contentType === Constants.CONTENT_TYPE_DIR) {
-      if (this.props.query.path === this.state.path) {
-        return false;
-      } else {
-        return true;
-      }
-    } else {
-      return true;
-    }
+    // if (this.state.contentType === Constants.CONTENT_TYPE_DIR) {
+    //   if (this.props.query.path === this.state.path) {
+    //     return false;
+    //   } else {
+    //     return true;
+    //   }
+    // } else {
+    //   return true;
+    // }
+    return true;
   },
 
   componentDidUpdate: function () {
@@ -94,12 +105,18 @@ var Home = React.createClass({
   },
 
   render: function () {
+    if(this.state.loading) {
+      return (
+        <div>
+        </div>
+      );
+    }
     if (this.state.contentType === Constants.CONTENT_TYPE_DIR) {
       return (
         <div>
           <RepositoryMeta data={this.state.repoInfo}  path={this.state.path} />
           <div className="container-fluid">
-            <Repository contents={this.state.contents} />
+            <Repository repo={this.state.repo} contents={this.state.contents} />
           </div>
           <RouteHandler />
         </div>

@@ -172,7 +172,6 @@ app.get('/auth/github/callback',
   passport.authenticate('github', { failureRedirect: '/login' }),
   function(req, res) {
     res.cookie('github_token', req.user.accessToken, { maxAge: 900000 });
-    console.log(req.user.accessToken);
     res.redirect('/');
   });
 

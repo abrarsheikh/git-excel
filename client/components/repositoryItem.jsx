@@ -31,6 +31,7 @@ var RepositoryItem = React.createClass({
           className="list-group-item" 
           to="home" 
           query={{
+            repo: this.props.repo,
             path: this.props.item.path,
             type: this.props.item.type
           }}>

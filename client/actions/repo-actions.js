@@ -3,11 +3,70 @@ var Biff = require("../biff");
 // Request
 var request = require("superagent");
 var Github = require("github-api");
+var cookie = require('react-cookie');
 
 // constants
 var Constants = require('../constants');
 
 var RepoActions = Biff.createActions({
+  init: function (repo, path, type) {
+    var self = this,
+      github = null,
+      gitPatterns = null,
+      gitPatternsIndex,
+      parsedUserAndRepo,
+      repoObject,
+      username,
+      reponame;
+
+    github = new Github({
+      token: cookie.load('github_token'),
+      auth: "oauth"
+    });
+
+    gitPatterns = [
+      {
+        pat: /(\w+:\/\/)(.+@)*([\w\d\.]+)(:[\d]+){0,1}\/*(.*)/i,
+        rep: "$5"
+      },
+      {
+        pat: /(.+@)*([\w\d\.]+):(.*)/i,
+        rep: "$3"
+      }
+    ];
+
+    for (gitPatternsIndex = 0; gitPatternsIndex < gitPatterns.length; gitPatternsIndex++) {
+      if (gitPatterns[gitPatternsIndex].pat.test(repo)) {
+        parsedUserAndRepo = repo.replace(gitPatterns[gitPatternsIndex].pat, gitPatterns[gitPatternsIndex].rep).split("/");
+        username = parsedUserAndRepo[0];
+        reponame = parsedUserAndRepo[1].replace(/\.git$/i, "");
+        break;
+      }
+    }
+
+    repoObject = github.getRepo(username, reponame);
+
+    repoObject.show(function(err, repoInfo) {
+      var repoInfo = repoInfo;
+      if (err) {
+        self.dispatch({
+          actionType: "INIT_FAILED",
+        });
+        return;
+      }
+      repoObject.listBranches(function(err, branches) {
+        self.dispatch({
+          actionType: "INIT_SUCCESS",
+          repo: repo,
+          path: path,
+          type: type,
+          repoObject: repoObject,
+          repoInfo: repoInfo,
+          repoBranches: branches
+        });
+      });
+    });
+  },
   open: function (rObject, branch, path, type) {
     var self = this;
     if (type === Constants.CONTENT_TYPE_DIR) {
