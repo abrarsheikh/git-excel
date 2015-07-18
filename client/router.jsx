@@ -4,6 +4,7 @@ var Router = require("react-router");
 var App = require("./components/app");
 var SignIn = require("./components/signin");
 var Home = require("./components/home");
+var SendEmail = require("./components/sendEmail");
 var NotFound = require("./components/notfound");
 
 // Request
@@ -19,6 +20,7 @@ var routes = (
   <Route handler={App} path="/">
     <Route path="/" handler={SignIn} />
     <Route name="home" path="home" handler={Home} />
+    <Route name="sendEmail" path="sendEmail" handler={SendEmail} />
     <NotFoundRoute handler={NotFound} />
   </Route>
 );

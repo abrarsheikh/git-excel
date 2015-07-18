@@ -10,6 +10,7 @@ var connect = require("gulp-connect");
 var shell = require("gulp-shell");
 var webpack = require("webpack");
 var rimraf = require("gulp-rimraf");
+var env = require('gulp-env');
 
 var buildCfg = require("./webpack.config");
 var buildDevCfg = require("./webpack.dev-config");
@@ -180,11 +181,20 @@ gulp.task("server:sources", function () {
   });
 });
 
+gulp.task('set-env', function () {
+    env({
+        file: "env.json",
+        vars: {
+            //any vars you want to overwrite
+        }
+    });
+});
+
 // ----------------------------------------------------------------------------
 // Aggregations
 // ----------------------------------------------------------------------------
 gulp.task("ls",       ["build:ls", "watch:ls", "server:sources"]);
-gulp.task("dev",      ["build:dev", "watch:dev", "server", "server:sources"]);
+gulp.task("dev",      ['set-env', "build:dev", "watch:dev", "server", "server:sources"]);
 gulp.task("hot",      ["webpack-server"]);
 gulp.task("prod",     ["build:prod", "watch:prod", "server", "server:sources"]);
 gulp.task("build",    ["build:prod-full"]);

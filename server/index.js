@@ -17,12 +17,18 @@ var sharejs = require('share');
 var shareCodeMirror = require('share-codemirror');
 var passport = require('passport');
 var GitHubStrategy = require('passport-github').Strategy;
+var redis = require('redis');
+var redisClient = redis.createClient(); //creates a new client 
+require('colors')
+var jsdiff = require('diff');
+
+
 
 var app = express();
 var PORT = process.env.PORT || 3000;
 
-var GITHUB_CLIENT_ID = "2b0399579308313edb04"
-var GITHUB_CLIENT_SECRET = "d71cad23bdb8a2b7c7cfd1708f868fdab66e21cc";
+var GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID
+var GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
 
 passport.serializeUser(function(user, done) {
   done(null, user);
@@ -105,7 +111,8 @@ app.use(passport.session());
 // Setup, Static Routes
 // ----------------------------------------------------------------------------
 app.use(compress());
-app.use(bodyParser());
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.engine(".hbs", exphbs({ extname: ".hbs" }));
 app.set("view engine", ".hbs");
 app.set("views", path.join(__dirname, "../templates"));
@@ -122,21 +129,132 @@ app.use("/app/css-dist", express.static("app/css-dist"));
 // ----------------------------------------------------------------------------
 // API
 // ----------------------------------------------------------------------------
-// TODO: Example wrapper.
-// var _errOrData = function (res, dataOverride) {
-//   return function (err, data) {
-//     if (err) {
-//       return res.status(500).json({ error: err.message || err.toString() });
-//     }
 
-//     res.json(dataOverride || data);
-//   };
-// };
+app.post('/api/init', function (req, res) {
+  // get query parameter
+  var repo = req.body.repo;
 
-// TODO: Old REST route using wrapper.
-// app["delete"]("/api/notes/:id", function (req, res) {
-//   db.run("delete from notes where id=?", req.params.id, _errOrData(res, {}));
-// });
+  // clear all previsous docs
+  redisClient.del(req.body.repo, function(err, reply) {
+      console.log("cleared all previous documents");
+      if (err) {
+        res.send(JSON.stringify({
+          success: false,
+          body: err
+        }));
+      } else {
+        res.send(JSON.stringify({
+          success: true,
+          body: reply
+        }));
+      }
+  });
+});
+
+app.post('/api/newDoc', function (req, res) {
+  // get query parameter
+  var repo = req.body.repo;
+  var docPath = req.body.docPath;
+  var doc = req.body.doc;
+
+  // add new docs to list
+  redisClient.rpush([req.body.repo, req.body.docPath], function(err, reply) {
+      redisClient.lrange(req.body.repo, 0, -1, function(err, reply) {
+          console.log(reply); 
+      });
+  });
+
+  redisClient.set(repo+docPath+'_old', doc, function(err, reply) {
+      res.setHeader('Content-Type', 'application/json');
+      if (err) {
+        res.send(JSON.stringify({
+          success: false,
+          body: err
+        }));
+      } else {
+        res.send(JSON.stringify({
+          success: true,
+          body: reply
+        }));
+      }
+  });
+});
+
+app.post('/api/updateDoc', function (req, res) {
+  // get query parameter
+  var repo = req.body.repo;
+  var docPath = req.body.docPath;
+  var doc = req.body.doc;
+
+  redisClient.set(repo+docPath+'_new', doc, function(err, reply) {
+      res.setHeader('Content-Type', 'application/json');
+      if (err) {
+        res.send(JSON.stringify({
+          success: false,
+          body: err
+        }));
+      } else {
+        res.send(JSON.stringify({
+          success: true,
+          body: reply
+        }));
+      }
+  });
+});
+
+app.get('/api/getDiff', function (req, res) {
+  // get query parameter
+  var repo = req.query.repo;
+
+  redisClient.lrange(req.query.repo, 0, -1, function(err, reply) {
+      var docPaths = reply,
+        i,
+        numOfDocs = docPaths.length,
+        docDiffs = [];
+      docPaths.forEach(function (docPath) {
+        var oldDoc, newDoc;
+        redisClient.get(repo+docPath+'_old', function(err, reply) {
+          res.setHeader('Content-Type', 'application/json');
+          if (err) {
+            res.send(JSON.stringify({
+              success: false,
+              body: err
+            }));
+          } else {
+            oldDoc = reply;
+            redisClient.get(repo+docPath+'_new', function(err, reply) {
+              res.setHeader('Content-Type', 'application/json');
+              if (err) {
+                res.send(JSON.stringify({
+                  success: false,
+                  body: err
+                }));
+              } else {
+                newDoc = reply;
+                var diff = jsdiff.diffLines(oldDoc, newDoc);
+                docDiffs.push({
+                  docDiff: diff,
+                  path: docPath
+                });
+                if(docDiffs.length === numOfDocs) {
+                  res.send({
+                    success: true,
+                    body: docDiffs
+                  });
+                }
+              }
+          });
+          }
+      });
+      });
+  });
+});
+
+app.get('/api/email', function(req, res) {
+  res.send({
+    success: true
+  })
+})
 
 // ----------------------------------------------------------------------------
 // Dynamic Routes

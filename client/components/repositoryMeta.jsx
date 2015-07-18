@@ -16,11 +16,6 @@ var RepositoryMeta = React.createClass({
   componentWillUnmount: function () {},
 
   render: function () {
-    var branchNodes = RepoStore.branches.map(function (branch) {
-      return (
-        <li><a href="#">{branch}</a></li>
-      );
-    });
     return (
       <div className="container-fluid">
         <div className="row">
@@ -49,6 +44,15 @@ var RepositoryMeta = React.createClass({
               <dt>path</dt>
               <dd>/{this.props.path}</dd>
             </dl>
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-md-6">
+            <button onClick={this.props.getDiff} type="button" className="btn btn-success">Get Diff</button>
+            <button onClick={this.props.resetRedis} type="button" className="btn btn-danger">Reset</button>
+            <button onClick={this.props.email} type="button" className="btn btn-primary">Email</button>
+          </div>
+          <div className="col-md-6">
           </div>
         </div>
       </div>

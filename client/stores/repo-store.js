@@ -5,7 +5,7 @@ var _ = require("lodash");
 var constants = require('../constants');
 
 // Creates a DataStore
-var RepoStore = Biff.createStore({
+var RepoStore = Biff.createStore({        
   // Initial setup
   info: {},
   rObject: null,
@@ -16,6 +16,8 @@ var RepoStore = Biff.createStore({
   currType: constants.CONTENT_TYPE_DIR,
   currRepo: '',
   loading: true,
+  codeDiff: [],
+  appExit: true,
 
   getRObject: function () {
     return this.rObject;
@@ -61,6 +63,13 @@ var RepoStore = Biff.createStore({
   if (payload.actionType === "REPO_FILE_UPDATED") {
     this.currContents = payload.currContents;
     this.emitChange();
+  }
+  if (payload.actionType === "CODE_DIFF_UPDATED") {
+    this.codeDiff = payload.codeDiff;
+    this.emitChange();
+  }
+  if (payload.actionType === "REDIS_INIT") {
+    this.appExit = payload.appExit;
   }
 });
 

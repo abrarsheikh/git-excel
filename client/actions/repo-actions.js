@@ -17,7 +17,8 @@ var RepoActions = Biff.createActions({
       parsedUserAndRepo,
       repoObject,
       username,
-      reponame;
+      reponame,
+      appExit=true;
 
     github = new Github({
       token: cookie.load('github_token'),
@@ -106,6 +107,48 @@ var RepoActions = Biff.createActions({
       actionType: "REPO_FILE_UPDATED",
       currContents: data
     });
+  },
+  initRedis: function(repo) {
+    var self = this;
+    request
+      .post('/api/init')
+      .send({ 
+        repo: repo,
+      })
+      .set('Accept', 'application/json')
+      .end(function(err, res){
+        alert('files have been reset');
+        self.dispatch({
+          actionType: "REDIS_INIT",
+          appExit: false
+        });
+      }
+    );
+  },
+  getDiffClicked: function(repo) {
+    var self = this;
+    request
+      .get('/api/getDiff')
+      .query({ repo: repo})
+      .set('Accept', 'application/json')
+      .end(function(err, res){
+        var diff = (res.body.body);
+        self.dispatch({
+          actionType: "CODE_DIFF_UPDATED",
+          codeDiff: diff
+        });
+      }
+    );
+  },
+  email: function(repo, to) {
+    request
+      .get('/api/email')
+      .query({ repo: repo, to: to})
+      .set('Accept', 'application/json')
+      .end(function(err, res){
+        alert('Email Sent');
+      }
+    );
   }
 });
 

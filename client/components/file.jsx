@@ -1,6 +1,7 @@
 // React
 var React = require("react");
 var sjs = require('../sjs');
+var request = require('superagent');
 
 // components
 var RepositoryItem = require("../components/repositoryItem");
@@ -29,32 +30,57 @@ var File = React.createClass({
     var elem = document.getElementById('pad');
     cm = CodeMirror.fromTextArea(elem);
     var fileInfo = CodeMirror.findModeByFileName(this.props.path);
+    var self = this;
     if (fileInfo) {
       cm.setOption("mode", fileInfo.mime);
       CodeMirror.autoLoadMode(cm, fileInfo.mode);
     }
     
-    doc = sjs.get('users', this.props.path);
+    this.state.doc = sjs.get(this.props.repo, this.props.path);
     var self = this;
-    doc.subscribe(function() {
-      RepoActions.updateFile(doc.snapshot);
+    this.state.doc.subscribe(function() {
+      RepoActions.updateFile(self.state.doc.snapshot);
     });
-    doc.whenReady(function () {
-      if (!doc.type) doc.create('text', self.props.contents);
-      if (doc.type && doc.type.name === 'text') {
-        doc.attachCodeMirror(cm);
-        RepoActions.updateFile(doc.snapshot);
+    
+    this.state.doc.whenReady(function () {
+      if (!self.state.doc.type)  {
+        self.state.doc.create('text', self.props.contents);
+        request
+          .post('/api/newDoc')
+          .send({ 
+            repo: self.props.repo,
+            docPath: self.props.path,
+            doc: self.props.contents
+          })
+          .set('Accept', 'application/json')
+          .end(function(err, res){
+            console.log(res.body);
+          }
+        );
       }
-      var context = doc.createContext();
-      context._onOp = function(op) {
-        RepoActions.updateFile(this.getSnapshot());
-      };
+      if (self.state.doc.type && self.state.doc.type.name === 'text') {
+        self.state.doc.attachCodeMirror(cm);
+        RepoActions.updateFile(self.state.doc.snapshot);
+      }
+      // var context = doc.createContext();
     });
   },
 
   componentWillUnmount: function () {
-    doc.unsubscribe();
-    doc.del();
+    var self = this;
+    this.state.doc.unsubscribe();
+    request
+      .post('/api/updateDoc')
+      .send({ 
+        repo: self.props.repo,
+        docPath: self.props.path,
+        doc: self.state.doc.snapshot
+      })
+      .set('Accept', 'application/json')
+      .end(function(err, res){
+        console.log(res.body);
+      }
+    );
   },
 
   render: function () {

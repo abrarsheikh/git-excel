@@ -1,5 +1,6 @@
 // React
 var React = require("react");
+var request = require('superagent');
 
 // actions
 var RepoActions = require("../actions/repo-actions");
@@ -24,7 +25,7 @@ var Constants = require('../constants');
 var Home = React.createClass({
   displayName: "Home",
   propTypes: {},
-  mixins: [RepoStore.mixin],
+  mixins: [RepoStore.mixin, Router.Navigation],
   statics: {
     willTransitionTo: function (transition, params, query) {
       // if (!UserStore.isUserLoggedIn()) {
@@ -44,7 +45,8 @@ var Home = React.createClass({
       path: null,
       currBranchIndex: RepoStore.currBranchIndex,
       repo: RepoStore.currRepo,
-      loading: RepoStore.loading
+      loading: RepoStore.loading,
+      appExit: RepoStore.appExit
     };
   },
 
@@ -55,6 +57,8 @@ var Home = React.createClass({
   componentWillUnmount: function () {},
 
   componentDidMount: function () {
+    var self = this;
+    
       // this.repoLoadAction(this.props.query.path, this.props.query.type);
   },
 
@@ -104,6 +108,19 @@ var Home = React.createClass({
     }
   },
 
+  getDiff: function(e) {
+    this.transitionTo('sendEmail', {}, {repo: this.props.query.repo});
+  },
+
+  resetRedis: function(e) {
+    RepoActions.initRedis(this.props.query.repo);
+  },
+
+  email: function(e) {
+    var emails = prompt("Enter To Email Address");
+    RepoActions.email(this.props.query.repo, emails);
+  },
+
   render: function () {
     if(this.state.loading) {
       return (
@@ -114,21 +131,21 @@ var Home = React.createClass({
     if (this.state.contentType === Constants.CONTENT_TYPE_DIR) {
       return (
         <div>
-          <RepositoryMeta data={this.state.repoInfo}  path={this.state.path} />
+          <RepositoryMeta email={this.email.bind(this)} resetRedis={this.resetRedis.bind(this)} getDiff={this.getDiff.bind(this)} data={this.state.repoInfo}  path={this.state.path} />
           <div className="container-fluid">
             <Repository repo={this.state.repo} contents={this.state.contents} />
           </div>
           <RouteHandler />
         </div>
       );
-    } else {
+    } else if (this.state.contentType === Constants.CONTENT_TYPE_FILE) {
       return (
         <div>
-          <RepositoryMeta data={this.state.repoInfo} path={this.state.path}/>
-          <File contents={this.state.contents} path={this.state.path}/>
+          <RepositoryMeta email={this.email.bind(this)} resetRedis={this.resetRedis.bind(this)} getDiff={this.getDiff.bind(this)} data={this.state.repoInfo} path={this.state.path}/>
+          <File contents={this.state.contents} repo={this.state.repo} path={this.state.path}/>
         </div>
       )
-    }
+    } 
   }
 });
 

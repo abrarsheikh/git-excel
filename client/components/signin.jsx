@@ -36,7 +36,8 @@ var SignIn = React.createClass({
 
   componentWillMount: function () {},
 
-  componentWillUnmount: function () {},
+  componentWillUnmount: function () {
+  },
 
   storeDidChange: function () {
     var nextPath = this.context.router.getCurrentQuery().nextPath;
