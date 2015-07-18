@@ -19,40 +19,42 @@ var RepositoryMeta = React.createClass({
     return (
       <div className="container-fluid">
         <div className="row">
-          <div className="col-md-6">
-            <dl className="dl-horizontal">
-              <dt>Owner</dt>
-              <dd><a href={this.props.data.owner.html_url} target="_blank">{this.props.data.owner.login}</a></dd>
-            </dl>
+          <div className="col-md-8">
+            <div className="row">
+              <div className="col-md-6">
+                <dl className="dl-horizontal">
+                  <dt>path</dt>
+                  <dd>/{this.props.path}</dd>
+                </dl>
+              </div>
+              <div className="col-md-6">
+                <dl className="dl-horizontal">
+                  <dt>Owner</dt>
+                  <dd><a href={this.props.data.owner.html_url} target="_blank">{this.props.data.owner.login}</a></dd>
+                </dl>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-md-6">
+                <dl className="dl-horizontal">
+                  <dt>SSH</dt>
+                  <dd>{this.props.data.ssh_url}</dd>
+                </dl>
+              </div>
+              <div className="col-md-6">
+                <dl className="dl-horizontal">
+                  <dt>Repository</dt>
+                  <dd><a href={this.props.data.html_url} target="_blank">{this.props.data.name}</a></dd>
+                </dl>
+              </div>
+            </div>
           </div>
-          <div className="col-md-6">
-            <dl className="dl-horizontal">
-              <dt>Repository</dt>
-              <dd><a href={this.props.data.html_url} target="_blank">{this.props.data.name}</a></dd>
-            </dl>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-md-6">
-            <dl className="dl-horizontal">
-              <dt>SSH</dt>
-              <dd>{this.props.data.ssh_url}</dd>
-            </dl>
-          </div>
-          <div className="col-md-6">
-            <dl className="dl-horizontal">
-              <dt>path</dt>
-              <dd>/{this.props.path}</dd>
-            </dl>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-md-6">
-            <button onClick={this.props.getDiff} type="button" className="btn btn-success">Get Diff</button>
-            <button onClick={this.props.resetRedis} type="button" className="btn btn-danger">Reset</button>
-            <button onClick={this.props.email} type="button" className="btn btn-primary">Email</button>
-          </div>
-          <div className="col-md-6">
+          <div className="col-md-4">
+            <div className="btn-group" role="group" aria-label="...">
+                <button onClick={this.props.getDiff} type="button" className="btn btn-success">Get Diff</button>
+                <button onClick={this.props.email} type="button" className="btn btn-primary">Email</button>
+                <button onClick={this.props.resetRedis} type="button" className="btn btn-danger">Reset</button>
+            </div>
           </div>
         </div>
       </div>

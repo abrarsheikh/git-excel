@@ -13,6 +13,7 @@ var RepoStore = require("../stores/repo-store");
 var Repository = require("../components/repository");
 var File = require("../components/file");
 var RepositoryMeta = require("../components/repositoryMeta");
+var WorkingFiles = require("../components/workingFiles");
 
 // Router
 var Router = require("react-router");
@@ -46,7 +47,8 @@ var Home = React.createClass({
       currBranchIndex: RepoStore.currBranchIndex,
       repo: RepoStore.currRepo,
       loading: RepoStore.loading,
-      appExit: RepoStore.appExit
+      appExit: RepoStore.appExit,
+      workingFilesArr: []
     };
   },
 
@@ -65,6 +67,7 @@ var Home = React.createClass({
   storeDidChange: function () { 
     if (this.state.loading != RepoStore.loading) {
       this.repoLoadAction(this.props.query.path, this.props.query.type);
+      RepoActions.loadWorkingFiles(this.props.query.repo);
     }
     this.setState({
       contents: RepoStore.getCurrContents(),
@@ -73,13 +76,16 @@ var Home = React.createClass({
       repo: RepoStore.currRepo,
       repoInfo: RepoStore.info,
       currBranchIndex: RepoStore.currBranchIndex,
-      loading: RepoStore.loading
+      loading: RepoStore.loading,
+      workingFilesArr: RepoStore.workingFilesArr
     });
   },
 
   componentWillReceiveProps: function (nextProps) {
     if (nextProps.query.path != this.props.query.path) {
       this.repoLoadAction(nextProps.query.path, nextProps.query.type);
+      RepoActions.loadWorkingFiles(this.props.query.repo);
+
     }
   },
 
@@ -133,8 +139,17 @@ var Home = React.createClass({
         <div>
           <RepositoryMeta email={this.email.bind(this)} resetRedis={this.resetRedis.bind(this)} getDiff={this.getDiff.bind(this)} data={this.state.repoInfo}  path={this.state.path} />
           <div className="container-fluid">
-            <Repository repo={this.state.repo} contents={this.state.contents} />
+            <div className="panel panel-success">
+              <div className="panel-heading">
+                <h3 className="panel-title">Repository</h3>
+              </div>
+              <div className="panel-body">
+                  <Repository repo={this.state.repo} contents={this.state.contents} />
+              </div>
+            </div>
           </div>
+          
+          <WorkingFiles workingFilesArr={this.state.workingFilesArr}/>
           <RouteHandler />
         </div>
       );
@@ -143,6 +158,7 @@ var Home = React.createClass({
         <div>
           <RepositoryMeta email={this.email.bind(this)} resetRedis={this.resetRedis.bind(this)} getDiff={this.getDiff.bind(this)} data={this.state.repoInfo} path={this.state.path}/>
           <File contents={this.state.contents} repo={this.state.repo} path={this.state.path}/>
+          <WorkingFiles workingFilesArr={this.state.workingFilesArr}/>
         </div>
       )
     } 

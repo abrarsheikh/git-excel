@@ -149,6 +149,21 @@ var RepoActions = Biff.createActions({
         alert('Email Sent');
       }
     );
+  },
+  loadWorkingFiles: function(repo) {
+    var self = this;
+    request
+      .get('/api/getFIles')
+      .query({ repo: repo})
+      .set('Accept', 'application/json')
+      .end(function(err, res){
+        self.dispatch({
+          actionType: "WORKING_FILES_UPDATED",
+          workingFilesArr: res.body
+        });
+      }
+    );
+
   }
 });
 

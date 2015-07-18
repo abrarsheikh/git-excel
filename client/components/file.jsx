@@ -86,7 +86,16 @@ var File = React.createClass({
   render: function () {
     return (
       <div className="container-fluid">
-  	    <textarea id="pad" value={this.props.contents} />
+        <div className="panel panel-success">
+          <div className="panel-heading">
+            <h3 className="panel-title">{this.props.path}</h3>
+          </div>
+          <div className="panel-body">
+            <ul className="list-group">
+              <textarea id="pad" value={this.props.contents} />
+            </ul>
+          </div>
+        </div>
   	  </div>
     );
   }

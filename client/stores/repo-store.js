@@ -18,6 +18,7 @@ var RepoStore = Biff.createStore({
   loading: true,
   codeDiff: [],
   appExit: true,
+  workingFilesArr: [],
 
   getRObject: function () {
     return this.rObject;
@@ -70,6 +71,12 @@ var RepoStore = Biff.createStore({
   }
   if (payload.actionType === "REDIS_INIT") {
     this.appExit = payload.appExit;
+    this.workingFilesArr = [];
+    this.emitChange();
+  }
+  if (payload.actionType === "WORKING_FILES_UPDATED") {
+    this.workingFilesArr = payload.workingFilesArr;
+    this.emitChange();
   }
 });
 

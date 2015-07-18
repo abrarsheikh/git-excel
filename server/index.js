@@ -151,6 +151,14 @@ app.post('/api/init', function (req, res) {
   });
 });
 
+app.get('/api/getFIles', function(req, res) {
+  // add new docs to list
+  redisClient.lrange(req.query.repo, 0, -1, function(err, reply) {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(reply);
+  });
+})
+
 app.post('/api/newDoc', function (req, res) {
   // get query parameter
   var repo = req.body.repo;
@@ -163,7 +171,7 @@ app.post('/api/newDoc', function (req, res) {
           console.log(reply); 
       });
   });
-
+  
   redisClient.set(repo+docPath+'_old', doc, function(err, reply) {
       res.setHeader('Content-Type', 'application/json');
       if (err) {
