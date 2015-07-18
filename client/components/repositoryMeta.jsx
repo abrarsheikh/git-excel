@@ -96,6 +96,7 @@ var RepositoryMeta = React.createClass({
             <div className="btn-group" role="group" aria-label="...">
                 <button onClick={this.props.getDiff} type="button" className="btn btn-success">Get Diff</button>
                 <button onClick={this.props.email} type="button" className="btn btn-primary">Email</button>
+                <button onClick={this.props.changeRepo} type="button" className="btn btn-primary">Change Repo</button>
                 <button onClick={this.props.resetRedis} type="button" className="btn btn-danger">Reset</button>
             </div>
           </div>

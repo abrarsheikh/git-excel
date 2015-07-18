@@ -127,6 +127,10 @@ var Home = React.createClass({
     RepoActions.email(this.props.query.repo, emails);
   },
 
+  changeRepo: function(e) {
+    this.transitionTo('/', {}, {});
+  },
+
   render: function () {
     if(this.state.loading) {
       return (
@@ -137,7 +141,7 @@ var Home = React.createClass({
     if (this.state.contentType === Constants.CONTENT_TYPE_DIR) {
       return (
         <div>
-          <RepositoryMeta email={this.email.bind(this)} resetRedis={this.resetRedis.bind(this)} getDiff={this.getDiff.bind(this)} data={this.state.repoInfo} repo={this.props.query.repo} path={this.props.query.path} type={this.props.query.type}/>
+          <RepositoryMeta changeRepo={this.changeRepo.bind(this)} email={this.email.bind(this)} resetRedis={this.resetRedis.bind(this)} getDiff={this.getDiff.bind(this)} data={this.state.repoInfo} repo={this.props.query.repo} path={this.props.query.path} type={this.props.query.type}/>
           <div className="container-fluid">
             <div className="panel panel-success">
               <div className="panel-heading">
@@ -156,7 +160,7 @@ var Home = React.createClass({
     } else if (this.state.contentType === Constants.CONTENT_TYPE_FILE) {
       return (
         <div>
-          <RepositoryMeta email={this.email.bind(this)} resetRedis={this.resetRedis.bind(this)} getDiff={this.getDiff.bind(this)} data={this.state.repoInfo} repo={this.props.query.repo} path={this.props.query.path} type={this.props.query.type}/>
+          <RepositoryMeta changeRepo={this.changeRepo.bind(this)} email={this.email.bind(this)} resetRedis={this.resetRedis.bind(this)} getDiff={this.getDiff.bind(this)} data={this.state.repoInfo} repo={this.props.query.repo} path={this.props.query.path} type={this.props.query.type}/>
           <File contents={this.state.contents} repo={this.state.repo} path={this.state.path}/>
           <WorkingFiles workingFilesArr={this.state.workingFilesArr}/>
         </div>
