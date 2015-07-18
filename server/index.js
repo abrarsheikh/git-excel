@@ -67,6 +67,8 @@ var share = sharejs.server.createClient({backend: backend});
 
 app.use(express.static(__dirname));
 app.use(express.static(__dirname + '/../js'));
+app.use(express.static(__dirname + '/../css'));
+app.use(express.static(__dirname + '/../images'));
 app.use(express.static(shareCodeMirror.scriptsDir));
 app.use(express.static(__dirname + '/../node_modules/codemirror/lib'));
 app.use(express.static(__dirname + '/../node_modules/codemirror/addon'));
@@ -171,7 +173,7 @@ app.post('/api/newDoc', function (req, res) {
           console.log(reply); 
       });
   });
-  
+
   redisClient.set(repo+docPath+'_old', doc, function(err, reply) {
       res.setHeader('Content-Type', 'application/json');
       if (err) {

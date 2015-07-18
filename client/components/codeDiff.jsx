@@ -19,11 +19,13 @@ var CodeDiff = React.createClass({
     	var spanStyle;
         if (line.added) {
          	spanStyle = {
-	        	'background-color': '#eaffea'
+	        	'background-color': '#eaffea',
+	        	'display': 'block'
 	        };
         } else if (line.removed) {
         	spanStyle = {
-	        	'background-color': '#ffecec'
+	        	'background-color': '#ffecec',
+	        	'display': 'block'
 	        };
         } else {
         	spanStyle = {
@@ -36,7 +38,7 @@ var CodeDiff = React.createClass({
     });
 
     return (
-      	<div className="panel panel-default">
+      	<div className="panel panel-info">
 		  <div className="panel-heading">
 		    <h3 className="panel-title">{this.props.codeDiff.path}</h3>
 		  </div>

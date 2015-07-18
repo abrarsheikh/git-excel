@@ -26,6 +26,7 @@ var RepositoryItem = React.createClass({
   componentWillUnmount: function () {},
 
   render: function () {
+    debugger;
     return (
       <Link activeClassName="list-group-item active" 
           className="list-group-item" 
@@ -35,7 +36,7 @@ var RepositoryItem = React.createClass({
             path: this.props.item.path,
             type: this.props.item.type
           }}>
-        {this.props.item.name}
+        <img src={this.props.item.type !== Constants.CONTENT_TYPE_DIR ? '/document-icon.png' : 'folder-icon.png'} />{this.props.item.name}
       </Link>
 
     );

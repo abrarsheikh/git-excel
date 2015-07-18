@@ -1,7 +1,13 @@
 // React
 var React = require("react");
 
+// Router
+var Link = require('react-router').Link;
+
 var RepoStore = require("../stores/repo-store");
+
+// constants
+var Constants = require('../constants');
 
 // Component
 var RepositoryMeta = React.createClass({
@@ -15,7 +21,35 @@ var RepositoryMeta = React.createClass({
 
   componentWillUnmount: function () {},
 
+  getPathSegments: function(path) {
+    var parts,
+    i,
+    runningPath = '',
+    runningIndex = 1,
+    self = this;
+    if (path.trim() === '') {
+      return;
+    } else {
+      parts = path.split("/");
+      var pathNodes = parts.map(function (part) {
+        runningPath = runningPath + ((runningIndex === 1 ? '' : '/') + part);
+        return (
+          <Link to="home" 
+              query={{
+                repo: self.props.repo,
+                path: runningPath,
+                type: (runningIndex === parts.length && self.props.type === Constants.CONTENT_TYPE_FILE) ? Constants.CONTENT_TYPE_FILE : Constants.CONTENT_TYPE_DIR
+              }}>
+            {runningIndex++ === 1 ? '' : '/'}{part}&nbsp;
+          </Link>
+        );
+      });
+      return pathNodes;
+    }
+  },
+
   render: function () {
+
     return (
       <div className="container-fluid">
         <div className="row">
@@ -24,7 +58,16 @@ var RepositoryMeta = React.createClass({
               <div className="col-md-6">
                 <dl className="dl-horizontal">
                   <dt>path</dt>
-                  <dd>/{this.props.path}</dd>
+                  <dd><Link to="home" 
+                      query={{
+                        repo: this.props.repo,
+                        path: '',
+                        type: Constants.CONTENT_TYPE_DIR
+                      }}>
+                    {'/'}
+                    &nbsp;
+                  </Link>
+                  {this.getPathSegments(this.props.path)}</dd>
                 </dl>
               </div>
               <div className="col-md-6">

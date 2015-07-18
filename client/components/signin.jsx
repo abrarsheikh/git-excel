@@ -68,13 +68,16 @@ var SignIn = React.createClass({
   },
 
   render: function () {
+    var style = {
+      width: '500px'
+    };
     return (
-      <div className="container">
+      <div style={style} className="container">
         <form className="form-signin">
           <h2 className="form-signin-heading">Specify a GIT repo</h2>
           <label htmlFor="inputRepo" className="sr-only">Repo</label>
           <input type="text" onChange={this.handleRepoChange} value={this.state.repo} id="inputRepo" ref="inputRepo" className="form-control" placeholder="Repo" />
-          <button className="btn btn-lg btn-primary btn-block" onClick={this.login} type="submit">Sign in</button>
+          <button className="btn btn-lg btn-primary btn-block" onClick={this.login} type="submit">Start</button>
         </form>
 
         <RouteHandler />

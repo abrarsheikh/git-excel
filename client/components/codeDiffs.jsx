@@ -23,7 +23,7 @@ var CodeDiffs = React.createClass({
       );
     });
     return (
-      <div>
+      <div className="container-fluid">
         {codeDiffNodes}
       </div>
     );
